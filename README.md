@@ -74,6 +74,6 @@ This derivation is licensed under the [MIT License](./LICENSE). Please refer to 
 
 This project is possible thanks to:
 
-- Bandithedoge for creating [https://github.com/bandithedoge/devkitNix/](devkitNix), which inspired me to make this
+- Bandithedoge for creating [devkitNix](https://github.com/bandithedoge/devkitNix/), which inspired me to make this
 - AntonioND for giving us the amazing [BlocksDS](https://blocksds.skylyrac.net/)
 
