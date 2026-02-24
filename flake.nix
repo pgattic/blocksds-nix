@@ -1,4 +1,6 @@
 {
+  description = "BlocksDS Nix Package";
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -13,7 +15,6 @@
 
       nativeBuildInputs = with pkgs; [
         jq
-        gnutar
         auto-patchelf
         patchelf
       ];
