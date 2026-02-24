@@ -1,9 +1,9 @@
 
-# BlocksDS Nix Package
+# BlocksDS-Nix: Reproducible Nintendo DS Homebrew
 
-This package provides a Nix-friendly development shell for building Nintendo DS games through BlocksDS.
+This package provides Nix-friendly utilities for building Nintendo DS games through BlocksDS.
 
-This derivation works by pulling the latest [official Docker image](https://hub.docker.com/r/skylyrac/blocksds) for BlocksDS and patching the programs included in it to work in a Nix environment.
+It works by pulling the latest [official Docker image](https://hub.docker.com/r/skylyrac/blocksds) for BlocksDS and patching the programs included in it to work in a Nix environment.
 
 ## Usage
 
@@ -17,28 +17,25 @@ This derivation works by pulling the latest [official Docker image](https://hub.
     };
   };
 
-  outputs = { self, nixpkgs, blocksds-nix }:
-    let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [ blocksds-nix.overlays.default ];
-      };
-      blocksds = pkgs.blocksdsNix.blocksdsSlim;
-    in
-    {
-      devShells.${system}.default = pkgs.mkShell {
-        packages = [ blocksds ];
-
-        WONDERFUL_TOOLCHAIN = blocksds.passthru.WONDERFUL_TOOLCHAIN;
-        BLOCKSDS            = blocksds.passthru.BLOCKSDS;
-        BLOCKSDSEXT         = blocksds.passthru.BLOCKSDSEXT;
-      };
+  outputs = { self, nixpkgs, blocksds-nix }: let
+    system = "x86_64-linux";
+    pkgs = import nixpkgs {
+      inherit system;
+      overlays = [ blocksds-nix.overlays.default ];
     };
+  in {
+    devShells.${system}.default = pkgs.blocksdsNix.mkShell {
+      packages = with pkgs; [
+        gnumake
+        cmake
+        python3
+      ];
+    };
+  };
 }
 ```
 
-See the [simple example](./examples/simple/) for a more complete usecase. If you want your game to target multiple platforms, see the [CMake example](./examples/cmake/) which demonstrates sharing source code between Nintendo DS, DSi, and Linux.
+See the [simple example](./examples/simple/) for a more complete usecase, including buildable NDS ROM package. If you want your game to target multiple platforms, see the [CMake example](./examples/cmake/) which demonstrates sharing source code between Nintendo DS, DSi, and Linux.
 
 ## License
 

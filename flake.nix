@@ -118,6 +118,7 @@
       # "Build environment" wrappers
       stdenvBlocksdsSlim = pkgs.stdenvAdapters.addAttrsToDerivation {
         nativeBuildInputs = [ blocksdsSlim ];
+        strictDeps = false;
         env = {
           WONDERFUL_TOOLCHAIN = blocksdsSlim.passthru.WONDERFUL_TOOLCHAIN;
           BLOCKSDS            = blocksdsSlim.passthru.BLOCKSDS;
@@ -127,12 +128,26 @@
 
       stdenvBlocksdsDev = pkgs.stdenvAdapters.addAttrsToDerivation {
         nativeBuildInputs = [ blocksdsDev ];
+        strictDeps = false;
         env = {
           WONDERFUL_TOOLCHAIN = blocksdsDev.passthru.WONDERFUL_TOOLCHAIN;
           BLOCKSDS            = blocksdsDev.passthru.BLOCKSDS;
           BLOCKSDSEXT         = blocksdsDev.passthru.BLOCKSDSEXT;
         };
       } pkgs.stdenvNoCC;
+
+      mkShell = { stdenv ? stdenvBlocksdsSlim
+                , packages ? []
+                , nativeBuildInputs ? []
+                , buildInputs ? []
+                , ... }@args:
+        pkgs.mkShell (args // {
+          inherit stdenv;
+          # ensure "packages" are actually on PATH
+          nativeBuildInputs = nativeBuildInputs ++ packages;
+          packages = [];
+          buildInputs = buildInputs;
+        });
     };
   in (flake-utils.lib.eachDefaultSystem (system:
     let pkgs = nixpkgs.legacyPackages.${system};

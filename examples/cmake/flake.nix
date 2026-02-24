@@ -17,8 +17,7 @@
           inherit system;
           overlays = [ blocksds-nix.overlays.default ];
         };
-        blocksds = pkgs.blocksdsNix.blocksdsSlim;
-        blocksdsEnv = blocksds.passthru;
+        blocksdsEnv = pkgs.blocksdsNix.stdenvBlocksdsSlim;
 
         # Shared CMake flags
         cmakeCommon = [
@@ -34,18 +33,13 @@
             version = "0.1.0";
             src = ./.;
 
-            nativeBuildInputs = with pkgs; [
-              cmake
-              ninja
-            ];
-
             configurePhase = ''
-              cmake -S . -B build/linux -G Ninja \
+              ${pkgs.cmake}/bin/cmake -S . -B build/linux \
                 ${pkgs.lib.concatStringsSep " " cmakeCommon}
             '';
 
             buildPhase = ''
-              cmake --build build/linux
+              ${pkgs.cmake}/bin/cmake --build build/linux
             '';
 
             installPhase = ''
@@ -55,30 +49,19 @@
             '';
           };
 
-          nds = pkgs.stdenvNoCC.mkDerivation {
+          nds = blocksdsEnv.mkDerivation {
             pname = "portable-demo-nds";
             version = "0.1.0";
             src = ./.;
 
-            nativeBuildInputs = with pkgs; [
-              blocksds
-              cmake
-              ninja
-            ];
-
-            # Provide the SDK env vars the BlocksDS toolchain expects
-            WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
-            BLOCKSDS            = blocksdsEnv.BLOCKSDS;
-            BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
-
             configurePhase = ''
-              cmake -S . -B build/nds -G Ninja \
+              ${pkgs.cmake}/bin/cmake -S . -B build/nds \
                 ${pkgs.lib.concatStringsSep " " cmakeCommon} \
                 -DCMAKE_TOOLCHAIN_FILE="$BLOCKSDS/cmake/BlocksDS.cmake"
             '';
 
             buildPhase = ''
-              cmake --build build/nds
+              ${pkgs.cmake}/bin/cmake --build build/nds
             '';
 
             installPhase = ''
@@ -87,35 +70,24 @@
             '';
           };
 
-          dsi = pkgs.stdenvNoCC.mkDerivation {
+          dsi = blocksdsEnv.mkDerivation {
             pname = "portable-demo-dsi";
             version = "0.1.0";
             src = ./.;
 
-            nativeBuildInputs = with pkgs; [
-              blocksds
-              cmake
-              ninja
-            ];
-
-            # Provide the SDK env vars the BlocksDS toolchain expects
-            WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
-            BLOCKSDS            = blocksdsEnv.BLOCKSDS;
-            BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
-
             configurePhase = ''
-              cmake -S . -B build/nds -G Ninja \
+              ${pkgs.cmake}/bin/cmake -S . -B build/dsi \
                 ${pkgs.lib.concatStringsSep " " cmakeCommon} \
                 -DCMAKE_TOOLCHAIN_FILE="$BLOCKSDS/cmake/BlocksDSi.cmake"
             '';
 
             buildPhase = ''
-              cmake --build build/nds
+              ${pkgs.cmake}/bin/cmake --build build/dsi
             '';
 
             installPhase = ''
               mkdir -p $out
-              cp build/nds/*.nds $out/
+              cp build/dsi/*.nds $out/
             '';
           };
 
@@ -123,35 +95,30 @@
           default = nds;
         };
 
-        devShells.default = pkgs.mkShell {
+        devShells.default = pkgs.blocksdsNix.mkShell {
           packages = with pkgs; [
-            blocksds
             cmake
-            ninja
+            gnumake
             gcc
             gdb
           ];
-
-          WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
-          BLOCKSDS            = blocksdsEnv.BLOCKSDS;
-          BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
 
           shellHook = ''
             echo "Dev shell: BlocksDS + Linux portable demo"
             echo ""
             echo "Linux build:"
-            echo "  cmake -S . -B build/linux -G Ninja -DCMAKE_BUILD_TYPE=Release"
+            echo "  cmake -S . -B build/linux -DCMAKE_BUILD_TYPE=Release"
             echo "  cmake --build build/linux"
             echo ""
             echo "NDS build:"
-            echo "  cmake -S . -B build/nds -G Ninja -DCMAKE_BUILD_TYPE=Release \\"
+            echo "  cmake -S . -B build/nds -DCMAKE_BUILD_TYPE=Release \\"
             echo "    -DCMAKE_TOOLCHAIN_FILE=\"$BLOCKSDS/cmake/BlocksDS.cmake\""
             echo "  cmake --build build/nds"
             echo ""
             echo "DSi build:"
-            echo "  cmake -S . -B build/nds -G Ninja -DCMAKE_BUILD_TYPE=Release \\"
+            echo "  cmake -S . -B build/dsi -DCMAKE_BUILD_TYPE=Release \\"
             echo "    -DCMAKE_TOOLCHAIN_FILE=\"$BLOCKSDS/cmake/BlocksDSi.cmake\""
-            echo "  cmake --build build/nds"
+            echo "  cmake --build build/dsi"
             echo ""
             echo "Docs: https://blocksds.skylyrac.net/docs/guides/"
           '';
