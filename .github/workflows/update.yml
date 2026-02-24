@@ -3,6 +3,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
+
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -35,6 +39,7 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          msg="$(cat .git/blocksds-update-message 2>/dev/null || echo '[skip ci] Update sources')"
+          msg="$(cat .git/blocksds-update-message 2>/dev/null || echo 'Update sources')"
           git commit -m "[skip ci] ${msg}"
           git push
+
