@@ -17,7 +17,6 @@
           inherit system;
           overlays = [ blocksds-nix.overlays.default ];
         };
-
         blocksds = pkgs.blocksdsNix.blocksdsSlim;
         blocksdsEnv = blocksds.passthru;
 

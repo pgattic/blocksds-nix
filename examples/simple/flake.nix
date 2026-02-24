@@ -17,14 +17,18 @@
           inherit system;
           overlays = [ blocksds-nix.overlays.default ];
         };
-        blocksdsEnv = pkgs.blocksdsNix.blocksdsSlim.passthru;
+        blocksds = pkgs.blocksdsNix.blocksdsSlim;
+        blocksdsEnv = blocksds.passthru;
 
       in {
-        packages.default = pkgs.blocksdsNix.stdenvBlocksdsSlim.mkDerivation {
+        packages.default = pkgs.stdenvNoCC.mkDerivation {
           name = "simple-example";
           src = ./.;
 
-          nativeBuildInputs = [ pkgs.gnumake ];
+          nativeBuildInputs = with pkgs; [
+            blocksds
+            gnumake
+          ];
 
           buildPhase = ''
             make
@@ -34,11 +38,15 @@
             mkdir -p $out
             cp *.nds $out/
           '';
+
+          WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
+          BLOCKSDS            = blocksdsEnv.BLOCKSDS;
+          BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
         };
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            blocksdsNix.blocksdsSlim
+            blocksds
             gnumake
           ];
 

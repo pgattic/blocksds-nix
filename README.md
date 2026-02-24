@@ -7,71 +7,42 @@ This derivation works by pulling the latest [official Docker image](https://hub.
 
 ## Usage
 
-To use this package, create a `flake.nix` like this:
-
 ```nix
 {
-  description = "Nintendo DS Flake Example";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
     blocksds-nix = {
       url = "github:pgattic/blocksds-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, flake-utils, blocksds-nix, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ blocksds-nix.overlays.default ];
-        };
-        blocksdsEnv = pkgs.blocksdsNix.blocksdsSlim.passthru;
+  outputs = { self, nixpkgs, blocksds-nix }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ blocksds-nix.overlays.default ];
+      };
+      blocksds = pkgs.blocksdsNix.blocksdsSlim;
+    in
+    {
+      devShells.${system}.default = pkgs.mkShell {
+        packages = [ blocksds ];
 
-      in {
-        packages.default = pkgs.blocksdsNix.stdenvBlocksdsSlim.mkDerivation {
-          name = "my-nds-game";
-          src = ./.;
-
-          nativeBuildInputs = with pkgs; [ gnumake ];
-
-          buildPhase = ''
-            make
-          '';
-
-          installPhase = ''
-            mkdir -p $out
-            cp *.nds $out/
-          '';
-        };
-
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            blocksdsNix.blocksdsSlim
-            gnumake
-            cmake # Some examples use CMake
-            python3 # Some examples use Python
-            melonds # NDS Emulator (for testing the game)
-          ];
-
-          WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
-          BLOCKSDS            = blocksdsEnv.BLOCKSDS;
-          BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
-        };
-      });
+        WONDERFUL_TOOLCHAIN = blocksds.passthru.WONDERFUL_TOOLCHAIN;
+        BLOCKSDS            = blocksds.passthru.BLOCKSDS;
+        BLOCKSDSEXT         = blocksds.passthru.BLOCKSDSEXT;
+      };
+    };
 }
 ```
 
-Run `nix develop` to enter the provided development shell. From here, you should be able to build any BlockDS example! Follow the [BlockDS documentation](https://blocksds.skylyrac.net/docs/guides/) to start developing your game.
-
-If this flake is included in a directory alongside a Makefile, you can just run `nix build` to compile the NDS ROM directly. If all goes well, the ROM will be placed in `result/my-nds-rom.nds`. See the [simple example](./examples/simple/) for a more complete example.
+See the [simple example](./examples/simple/) for a more complete usecase. If you want your game to target multiple platforms, see the [CMake example](./examples/cmake/) which demonstrates sharing source code between Nintendo DS, DSi, and Linux.
 
 ## License
 
-This derivation is licensed under the [MIT License](./LICENSE). Please refer to the [BlocksDS license information](https://blocksds.skylyrac.net/docs/guides/licenses/) for details about BlocksDS's licensing.
+This repository's code is licensed under the [MIT License](./LICENSE). Please refer to the [BlocksDS license information](https://blocksds.skylyrac.net/docs/guides/licenses/) for details about BlocksDS's licensing.
 
 ## Credits
 
