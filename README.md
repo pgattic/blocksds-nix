@@ -1,5 +1,5 @@
 
-# BlocksDS Nix Package (WIP)
+# BlocksDS Nix Package
 
 This package provides a Nix-friendly development shell for building Nintendo DS games through BlocksDS.
 
