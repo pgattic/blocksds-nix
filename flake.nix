@@ -6,7 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }: let
+  outputs = { nixpkgs, flake-utils, ... }: let
     mkBlocksDS = pkgs: { name, srcJson }: let
       imageTar = pkgs.dockerTools.pullImage (pkgs.lib.importJSON srcJson);
     in pkgs.stdenv.mkDerivation (finalAttrs: {
@@ -103,16 +103,34 @@
     packagesFor = pkgs: rec {
       blocksdsSlim = mkBlocksDS pkgs {
         name = "blocksds-slim";
-        srcJson = ./sources/blocksds-slim.json;
+        srcJson = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
+          then ./sources/blocksds-slim-amd64.json
+          else ./sources/blocksds-slim-arm64.json;
       };
 
-      # "Build environment" wrapper
-      stdenvBlocksDS = pkgs.stdenvAdapters.addAttrsToDerivation {
+      blocksdsDev = mkBlocksDS pkgs {
+        name = "blocksds-dev";
+        srcJson = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
+          then ./sources/blocksds-dev-amd64.json
+          else ./sources/blocksds-dev-arm64.json;
+      };
+
+      # "Build environment" wrappers
+      stdenvBlocksdsSlim = pkgs.stdenvAdapters.addAttrsToDerivation {
         nativeBuildInputs = [ blocksdsSlim ];
         env = {
           WONDERFUL_TOOLCHAIN = blocksdsSlim.passthru.WONDERFUL_TOOLCHAIN;
           BLOCKSDS            = blocksdsSlim.passthru.BLOCKSDS;
           BLOCKSDSEXT         = blocksdsSlim.passthru.BLOCKSDSEXT;
+        };
+      } pkgs.stdenvNoCC;
+
+      stdenvBlocksdsDev = pkgs.stdenvAdapters.addAttrsToDerivation {
+        nativeBuildInputs = [ blocksdsDev ];
+        env = {
+          WONDERFUL_TOOLCHAIN = blocksdsDev.passthru.WONDERFUL_TOOLCHAIN;
+          BLOCKSDS            = blocksdsDev.passthru.BLOCKSDS;
+          BLOCKSDSEXT         = blocksdsDev.passthru.BLOCKSDSEXT;
         };
       } pkgs.stdenvNoCC;
     };

@@ -4,7 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    blocksds-nix.url = "github:pgattic/blocksds-nix";
+    blocksds-nix = {
+      url = "github:pgattic/blocksds-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { nixpkgs, flake-utils, blocksds-nix, ... }:
@@ -17,7 +20,7 @@
         blocksdsEnv = pkgs.blocksdsNix.blocksdsSlim.passthru;
 
       in {
-        packages.default = pkgs.blocksdsNix.stdenvBlocksDS.mkDerivation {
+        packages.default = pkgs.blocksdsNix.stdenvBlocksdsSlim.mkDerivation {
           name = "simple-example";
           src = ./.;
 
@@ -36,7 +39,7 @@
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             blocksdsNix.blocksdsSlim
-            pkgs.gnumake
+            gnumake
           ];
 
           WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;

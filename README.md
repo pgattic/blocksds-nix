@@ -3,9 +3,9 @@
 
 This package provides a Nix-friendly development shell for building Nintendo DS games through BlocksDS.
 
-## Usage
-
 This derivation works by pulling the latest [official Docker image](https://hub.docker.com/r/skylyrac/blocksds) for BlocksDS and patching the programs included in it to work in a Nix environment.
+
+## Usage
 
 To use this package, create a `flake.nix` like this:
 
@@ -16,7 +16,10 @@ To use this package, create a `flake.nix` like this:
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    blocksds-nix.url = "github:pgattic/blocksds-nix";
+    blocksds-nix = {
+      url = "github:pgattic/blocksds-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { nixpkgs, flake-utils, blocksds-nix, ... }:
@@ -29,7 +32,7 @@ To use this package, create a `flake.nix` like this:
         blocksdsEnv = pkgs.blocksdsNix.blocksdsSlim.passthru;
 
       in {
-        packages.default = pkgs.blocksdsNix.stdenvBlocksDS.mkDerivation {
+        packages.default = pkgs.blocksdsNix.stdenvBlocksdsSlim.mkDerivation {
           name = "my-nds-game";
           src = ./.;
 
