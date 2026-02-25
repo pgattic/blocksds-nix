@@ -23,13 +23,20 @@ It works by pulling the latest [official Docker image](https://hub.docker.com/r/
       inherit system;
       overlays = [ blocksds-nix.overlays.default ];
     };
+    blocksds = pkgs.blocksdsNix.blocksdsSlim;
+    blocksdsEnv = blocksds.passthru;
   in {
-    devShells.${system}.default = pkgs.blocksdsNix.mkShell {
+    devShells.${system}.default = pkgs.mkShell {
       packages = with pkgs; [
+        blocksds
         gnumake
         cmake
         python3
       ];
+
+      WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
+      BLOCKSDS            = blocksdsEnv.BLOCKSDS;
+      BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
     };
   };
 }

@@ -17,16 +17,19 @@
           inherit system;
           overlays = [ blocksds-nix.overlays.default ];
         };
-        blocksdsEnv = pkgs.blocksdsNix.stdenvBlocksdsSlim;
+        blocksds = pkgs.blocksdsNix.blocksdsSlim;
+        blocksdsEnv = blocksds.passthru;
 
       in {
-        packages.default = blocksdsEnv.mkDerivation {
+        packages.default = pkgs.blocksdsNix.stdenvBlocksdsSlim.mkDerivation {
           pname = "simple-example";
           version = "0.1.0";
           src = ./.;
 
+          nativeBuildInputs = with pkgs; [ gnumake ];
+
           buildPhase = ''
-            ${pkgs.gnumake}/bin/make
+            make
           '';
 
           installPhase = ''
@@ -35,10 +38,15 @@
           '';
         };
 
-        devShells.default = pkgs.blocksdsNix.mkShell {
+        devShells.default = pkgs.mkShell {
           packages = with pkgs; [
+            blocksdsNix.blocksdsSlim
             gnumake
           ];
+
+          WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
+          BLOCKSDS            = blocksdsEnv.BLOCKSDS;
+          BLOCKSDSEXT         = blocksdsEnv.BLOCKSDSEXT;
 
           shellHook = ''
             echo "Welcome to the Nintendo DS example dev shell!"

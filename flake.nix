@@ -138,19 +138,6 @@
           BLOCKSDSEXT         = blocksdsDev.passthru.BLOCKSDSEXT;
         };
       } pkgs.stdenvNoCC;
-
-      mkShell = { stdenv ? stdenvBlocksdsSlim
-                , packages ? []
-                , nativeBuildInputs ? []
-                , buildInputs ? []
-                , ... }@args:
-        pkgs.mkShell (args // {
-          inherit stdenv;
-          # ensure "packages" are actually on PATH
-          nativeBuildInputs = nativeBuildInputs ++ packages;
-          packages = [];
-          buildInputs = buildInputs;
-        });
     };
   in (flake-utils.lib.eachDefaultSystem (system:
     let pkgs = nixpkgs.legacyPackages.${system};
