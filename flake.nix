@@ -9,6 +9,9 @@
   outputs = { nixpkgs, flake-utils, ... }: let
     mkBlocksDS = pkgs: { name, srcJson }: let
       imageTar = pkgs.dockerTools.pullImage (pkgs.lib.importJSON srcJson);
+      arch = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
+        then "x86_64"
+        else "aarch64";
     in pkgs.stdenv.mkDerivation (finalAttrs: {
       inherit name;
       src = imageTar;
@@ -68,7 +71,7 @@
         auto-patchelf -- "''${out}/bin" || true
 
         # Patch binaries to point to the correct places within the nix store
-        musl_ld="$out/opt/wonderful/lib/ld-musl-x86_64.so.1"
+        musl_ld="$out/opt/wonderful/lib/ld-musl-${arch}.so.1"
         musl_lib="$out/opt/wonderful/lib"
 
         patch_musl_tree() {
@@ -79,7 +82,7 @@
           while IFS= read -r f; do
             if file -b "$f" | grep -q 'ELF'; then
               # Only patch things that still point at the hardcoded docker path
-              if patchelf --print-interpreter "$f" 2>/dev/null | grep -q '^/opt/wonderful/lib/ld-musl-x86_64.so.1$'; then
+              if patchelf --print-interpreter "$f" 2>/dev/null | grep -q '^/opt/wonderful/lib/ld-musl-${arch}.so.1$'; then
                 patchelf --set-interpreter "$musl_ld" "$f"
                 # Ensure it can find musl-linked libs shipped in the SDK
                 patchelf --set-rpath "$musl_lib" "$f" || true
