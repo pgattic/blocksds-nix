@@ -5,6 +5,12 @@ set -euo pipefail
 IMAGE="skylyrac/blocksds"
 mkdir -p sources
 changed=0
+containers_registries_conf="$(mktemp)"
+trap 'rm -f "$containers_registries_conf"' EXIT
+cat >"$containers_registries_conf" <<'EOF'
+unqualified-search-registries = ["docker.io"]
+EOF
+export CONTAINERS_REGISTRIES_CONF="$containers_registries_conf"
 
 fetch() {
   local tag="$1" arch="$2" out="$3"
@@ -46,6 +52,5 @@ nix build ./examples/*
 # Emit a commit message helper (digest snippets)
 slim_amd64_digest="$(jq -r .imageDigest sources/blocksds-slim-amd64.json | cut -c1-19)"
 dev_amd64_digest="$(jq -r .imageDigest sources/blocksds-dev-amd64.json  | cut -c1-19)"
-msg="Update BlocksDS images (slim ${slim_amd64_digest}, dev ${dev_amd64_digest})"
+msg="Update BlocksDS images"
 echo "$msg" > .git/blocksds-update-message
-

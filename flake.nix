@@ -103,19 +103,19 @@
         BLOCKSDSEXT         = "${WONDERFUL_TOOLCHAIN}/thirdparty/blocksds/external";
       };
     });
-    packagesFor = pkgs: rec {
+    packagesFor = pkgs: let
+      dockerArch = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
+        then "amd64"
+        else "arm64";
+    in rec {
       blocksdsSlim = mkBlocksDS pkgs {
         name = "blocksds-slim";
-        srcJson = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
-          then ./sources/blocksds-slim-amd64.json
-          else ./sources/blocksds-slim-arm64.json;
+        srcJson = ./sources/blocksds-slim-${dockerArch}.json;
       };
 
       blocksdsDev = mkBlocksDS pkgs {
         name = "blocksds-dev";
-        srcJson = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
-          then ./sources/blocksds-dev-amd64.json
-          else ./sources/blocksds-dev-arm64.json;
+        srcJson = ./sources/blocksds-dev-${dockerArch}.json;
       };
 
       # "Build environment" wrappers
