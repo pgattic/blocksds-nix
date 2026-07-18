@@ -1,7 +1,7 @@
 {
   "imageName": "skylyrac/blocksds",
-  "imageDigest": "sha256:a9735ab63e69e63523f6b4cde315c0e65785498a6bcdab59127730e782e615a9",
-  "hash": "sha256-1qN8KpkLjbpSEbUeaS4n5mhI/xMsRBZ/81BSvAbF2NM=",
+  "imageDigest": "sha256:8694153b6e858b4781cf2e3f57fabd91751538939adf2ef6e8f7f40aa4802842",
+  "hash": "sha256-Bn1s2Cir0RDwlUFfGR9f6/p6W6sEhJK1DBG2iPZk73k=",
   "finalImageName": "skylyrac/blocksds",
   "finalImageTag": "dev-latest"
 }
