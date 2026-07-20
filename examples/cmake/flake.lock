@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784407029,
-        "narHash": "sha256-pkDfNpb4ANw0F96OJbtdUYjcZR4okxuOkAuOvkWn970=",
+        "lastModified": 1784407746,
+        "narHash": "sha256-mFv7QPe9xwtvu1UxfcMvC6O1A27OmJydWQYGyI7K59s=",
         "owner": "pgattic",
         "repo": "blocksds-nix",
-        "rev": "8c1cd00e4446499d7905b4646ecd0869164e7ded",
+        "rev": "9b823f4b1fa69b1f2addba3e8fb770e79c715ec8",
         "type": "github"
       },
       "original": {
