@@ -1,9 +1,12 @@
-
 # BlocksDS-Nix: Reproducible Nintendo DS Homebrew
 
-This package provides Nix-friendly utilities for building Nintendo DS games through BlocksDS.
+This flake provides Nix-friendly utilities for building Nintendo DS homebrew
+through BlocksDS.
 
-It works by pulling the latest [official Docker image](https://hub.docker.com/r/skylyrac/blocksds) for BlocksDS and patching the programs included in it to work in a Nix environment.
+It works by extracting binaries out of BlocksDS's
+[official Docker images](https://hub.docker.com/r/skylyrac/blocksds) and
+patching them to work in a Nix environment. Since the pre-built docker images
+are content-addressable, your dev environment becomes fully reproducible!
 
 ## Usage
 
@@ -42,16 +45,21 @@ It works by pulling the latest [official Docker image](https://hub.docker.com/r/
 }
 ```
 
-See the [simple example](./examples/simple/) for a more complete usecase, including buildable NDS ROM package. If you want your game to target multiple platforms, see the [CMake example](./examples/cmake/) which demonstrates sharing source code between Nintendo DS, DSi, and Linux.
+See the [simple example](./examples/simple/) for an example usecase, including
+a buildable NDS ROM package. If you want your game to target multiple platforms,
+see the [CMake example](./examples/cmake/) which demonstrates sharing source
+code between Nintendo DS, DSi, and Linux.
 
 ## License
 
-This repository's code is licensed under the [MIT License](./LICENSE). Please refer to the [BlocksDS license information](https://blocksds.skylyrac.net/docs/guides/licenses/) for details about BlocksDS's licensing.
+This repository's code is licensed under the [MIT License](./LICENSE). Please
+refer to the [BlocksDS license information](https://blocksds.skylyrac.net/docs/guides/licenses/)
+for details about BlocksDS's licensing.
 
 ## Credits
 
 This project is possible thanks to:
 
-- Bandithedoge for creating [devkitNix](https://github.com/bandithedoge/devkitNix/), which inspired me to make this
+- Bandithedoge for creating [devkitNix](https://github.com/bandithedoge/devkitNix/),
+  which inspired me to make this
 - AntonioND for giving us the amazing [BlocksDS](https://blocksds.skylyrac.net/)
-
