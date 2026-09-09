@@ -6,7 +6,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = inputs@{ nixpkgs, flake-parts, ... }: let
+  outputs = inputs: let
     mkBlocksDS = pkgs: { name, srcJson }: let
       imageTar = pkgs.dockerTools.pullImage (pkgs.lib.importJSON srcJson);
       arch = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
@@ -16,15 +16,15 @@
       inherit name;
       src = imageTar;
 
-      nativeBuildInputs = with pkgs; [
-        jq
-        auto-patchelf
-        patchelf
+      nativeBuildInputs = [
+        pkgs.jq
+        pkgs.auto-patchelf
+        pkgs.patchelf
       ];
 
-      buildInputs = with pkgs; [
-        ncurses
-        stdenv.cc.cc.lib
+      buildInputs = [
+        pkgs.ncurses
+        pkgs.stdenv.cc.cc.lib
       ];
 
       dontPatchShebangs = true;
@@ -138,18 +138,16 @@
           BLOCKSDSEXT         = blocksdsDev.passthru.BLOCKSDSEXT;
         };
       } pkgs.stdenvNoCC;
+
+      default = blocksdsSlim;
     };
-  in flake-parts.lib.mkFlake { inherit inputs; } {
+  in inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = [
-      "aarch64-darwin"
       "aarch64-linux"
-      "x86_64-darwin"
       "x86_64-linux"
     ];
 
-    perSystem = { system, ... }: let
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
+    perSystem = { pkgs, ... }: {
       packages = packagesFor pkgs;
     };
 

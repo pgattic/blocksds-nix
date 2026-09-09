@@ -13,9 +13,7 @@
   outputs = inputs@{ nixpkgs, flake-parts, blocksds-nix, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
-        "aarch64-darwin"
         "aarch64-linux"
-        "x86_64-darwin"
         "x86_64-linux"
       ];
 
@@ -42,9 +40,9 @@
             version = "0.1.0";
             src = ./.;
 
-            nativeBuildInputs = with pkgs; [
-              cmake
-              gnumake
+            nativeBuildInputs = [
+              pkgs.cmake
+              pkgs.gnumake
             ];
 
             configurePhase = ''
@@ -68,10 +66,10 @@
             version = "0.1.0";
             src = ./.;
 
-            nativeBuildInputs = with pkgs; [
+            nativeBuildInputs = [
               blocksds
-              cmake
-              gnumake
+              pkgs.cmake
+              pkgs.gnumake
             ];
 
             configurePhase = ''
@@ -95,10 +93,10 @@
             version = "0.1.0";
             src = ./.;
 
-            nativeBuildInputs = with pkgs; [
+            nativeBuildInputs = [
               blocksds
-              cmake
-              gnumake
+              pkgs.cmake
+              pkgs.gnumake
             ];
 
             configurePhase = ''
@@ -122,13 +120,12 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            blocksdsNix.blocksdsSlim
+          packages = [
             blocksds
-            cmake
-            gnumake
-            gcc
-            gdb
+            pkgs.cmake
+            pkgs.gnumake
+            pkgs.gcc
+            pkgs.gdb
           ];
 
           WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;

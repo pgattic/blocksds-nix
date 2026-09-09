@@ -13,7 +13,7 @@ are content-addressable, your dev environment becomes fully reproducible!
 ```nix
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
     blocksds-nix = {
       url = "github:pgattic/blocksds-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,11 +30,11 @@ are content-addressable, your dev environment becomes fully reproducible!
     blocksdsEnv = blocksds.passthru;
   in {
     devShells.${system}.default = pkgs.mkShell {
-      packages = with pkgs; [
+      packages = [
         blocksds
-        gnumake
-        cmake
-        python3
+        pkgs.gnumake
+        pkgs.cmake
+        pkgs.python3
       ];
 
       WONDERFUL_TOOLCHAIN = blocksdsEnv.WONDERFUL_TOOLCHAIN;
