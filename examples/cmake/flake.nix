@@ -7,6 +7,7 @@
     blocksds-nix = {
       url = "github:pgattic/blocksds-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
   };
 
