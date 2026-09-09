@@ -2,11 +2,11 @@
   description = "BlocksDS Nix Package";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = { nixpkgs, flake-utils, ... }: let
+  outputs = inputs@{ nixpkgs, flake-parts, ... }: let
     mkBlocksDS = pkgs: { name, srcJson }: let
       imageTar = pkgs.dockerTools.pullImage (pkgs.lib.importJSON srcJson);
       arch = if pkgs.stdenv.hostPlatform.system == "x86_64-linux"
@@ -139,14 +139,24 @@
         };
       } pkgs.stdenvNoCC;
     };
-  in (flake-utils.lib.eachDefaultSystem (system:
-    let pkgs = nixpkgs.legacyPackages.${system};
-    in { packages = packagesFor pkgs; }
-  ))
-  // {
-    overlays.default = final: prev: {
-      blocksdsNix = packagesFor prev;
+  in flake-parts.lib.mkFlake { inherit inputs; } {
+    systems = [
+      "aarch64-darwin"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "x86_64-linux"
+    ];
+
+    perSystem = { system, ... }: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      packages = packagesFor pkgs;
+    };
+
+    flake = {
+      overlays.default = final: prev: {
+        blocksdsNix = packagesFor prev;
+      };
     };
   };
 }
-

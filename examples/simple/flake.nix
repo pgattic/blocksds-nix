@@ -2,16 +2,24 @@
   description = "Nintendo DS Package Example";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     blocksds-nix = {
       url = "github:pgattic/blocksds-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, flake-utils, blocksds-nix, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs@{ nixpkgs, flake-parts, blocksds-nix, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
+
+      perSystem = { system, ... }:
       let
         pkgs = import nixpkgs {
           inherit system;
@@ -56,6 +64,6 @@
             echo "https://blocksds.skylyrac.net/docs/guides/"
           '';
         };
-      });
+      };
+    };
 }
-
